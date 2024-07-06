@@ -1,6 +1,8 @@
 package com.gigglegazette.user_service.model;
 
 import jakarta.validation.constraints.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -12,16 +14,19 @@ public class Role {
     @MongoId(FieldType.OBJECT_ID)
     private String id;
 
-    @NotBlank(message = "Role name is required")
+    @NotBlank(message = "Role name needs to be filled")
     private String name;
 
+    @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Role(){}
 
     public Role(String name) {
         this.name = name;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public String getId() {
@@ -55,7 +60,5 @@ public class Role {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    // Constructors, getters, setters, and other methods
 }
 

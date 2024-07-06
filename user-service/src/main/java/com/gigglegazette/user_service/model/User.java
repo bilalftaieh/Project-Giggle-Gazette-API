@@ -1,5 +1,7 @@
 package com.gigglegazette.user_service.model;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
@@ -7,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import jakarta.validation.constraints.*;
+
 import java.time.LocalDateTime;
 
 @Document(collection = "users")
@@ -37,8 +40,10 @@ public class User {
     @DocumentReference(collection = "profiles")
     private Profile profile;
 
+    @CreatedDate
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     public User(String username, String email, String password, Role role,
@@ -48,8 +53,6 @@ public class User {
         this.password = password;
         this.role = role;
         this.profile = profile;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public String getId() {

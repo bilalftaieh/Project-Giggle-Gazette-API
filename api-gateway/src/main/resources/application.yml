@@ -11,6 +11,10 @@ management:
     sampling:
       probability: 1.0
 
+gigglegazette:
+  app:
+    jwtSecret: ======================ProjectGiggleGazette=Spring===========================
+    jwtPrefix : Bearer
 spring:
   application:
     name: api-gateway
@@ -40,6 +44,7 @@ spring:
           predicates:
             - Path=/subcategories/**
 
+        # User Service
         - id: user-service-users
           uri: lb://user-service
           predicates:
@@ -56,3 +61,9 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/permissions/**
+
+        # Auth Service
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**

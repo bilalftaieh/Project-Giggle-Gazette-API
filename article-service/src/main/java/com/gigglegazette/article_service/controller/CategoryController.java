@@ -3,14 +3,16 @@ package com.gigglegazette.article_service.controller;
 import com.gigglegazette.article_service.model.Category;
 import com.gigglegazette.article_service.repository.CategoryRepository;
 import com.gigglegazette.article_service.util.CustomResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/categories")
@@ -26,10 +28,22 @@ public class CategoryController {
      * @return A response entity with a success message if the category is created successfully.
      */
     @PostMapping
-    public ResponseEntity<CustomResponse<Category>> createCategory(@RequestBody Category category) {
+    public ResponseEntity<?>
+    createCategory(@Valid @RequestBody Category category, BindingResult result) {
+        if (result.hasErrors()) {
+            // Handle validation errors
+            List<Map<String, String>> errorDetails = new ArrayList<>();
+            for (FieldError error : result.getFieldErrors()) {
+                Map<String, String> errorDetail = new HashMap<>();
+                errorDetail.put("field", error.getField());
+                errorDetail.put("message", error.getDefaultMessage());
+                errorDetails.add(errorDetail);
+            }
+            return ResponseEntity.status(400).body(
+                    new CustomResponse<>("Validation Failed", errorDetails, false)
+            );
+        }
         try {
-            category.setCreatedAt(LocalDateTime.now());
-            category.setUpdatedAt(LocalDateTime.now());
             Category savedCategory = categoryRepository.save(category);
             return new ResponseEntity<>(new CustomResponse<>("Category created successfully.", savedCategory, true), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -72,7 +86,7 @@ public class CategoryController {
      * Update an existing category's attributes based on the request body.
      * Only the fields included in the request body will be updated.
      *
-     * @param id The ID of the category to be updated.
+     * @param id              The ID of the category to be updated.
      * @param categoryDetails The updated category details.
      * @return A response entity indicating whether the update was successful or the category was not found.
      */
@@ -84,7 +98,6 @@ public class CategoryController {
                 Category category = categoryOptional.get();
                 if (categoryDetails.getName() != null) category.setName(categoryDetails.getName());
                 if (categoryDetails.getDescription() != null) category.setDescription(categoryDetails.getDescription());
-                if (categoryDetails.getUpdatedAt() != null) category.setUpdatedAt(categoryDetails.getUpdatedAt());
                 Category updatedCategory = categoryRepository.save(category);
                 return new ResponseEntity<>(new CustomResponse<>("Category updated successfully.", updatedCategory, true), HttpStatus.OK);
             } else {

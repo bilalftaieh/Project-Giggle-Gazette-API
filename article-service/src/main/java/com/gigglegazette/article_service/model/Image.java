@@ -1,6 +1,8 @@
 package com.gigglegazette.article_service.model;
 
 import jakarta.validation.constraints.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -40,9 +42,11 @@ public class Image {
     @Min(value = 1, message = "Height must be a positive number")
     private int height;
 
-    private LocalDateTime uploadedAt;
+    @CreatedDate
+    private LocalDateTime createdAt;
 
-    private LocalDateTime lastAccessedAt;
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @NotNull(message = "Is Public must be specified")
     private boolean isPublic;
@@ -60,8 +64,6 @@ public class Image {
         this.size = size;
         this.width = width;
         this.height = height;
-        this.uploadedAt = LocalDateTime.now();
-        this.lastAccessedAt = LocalDateTime.now();
         this.isPublic = isPublic;
     }
 
@@ -131,20 +133,20 @@ public class Image {
         this.height = height;
     }
 
-    public LocalDateTime getUploadedAt() {
-        return uploadedAt;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setUploadedAt(LocalDateTime uploadedAt) {
-        this.uploadedAt = uploadedAt;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public LocalDateTime getLastAccessedAt() {
-        return lastAccessedAt;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setLastAccessedAt(LocalDateTime lastAccessedAt) {
-        this.lastAccessedAt = lastAccessedAt;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public boolean isPublic() {

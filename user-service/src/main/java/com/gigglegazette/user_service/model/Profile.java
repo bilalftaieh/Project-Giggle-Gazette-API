@@ -2,6 +2,8 @@ package com.gigglegazette.user_service.model;
 
 import com.gigglegazette.user_service.util.Address;
 import jakarta.validation.constraints.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -36,7 +38,10 @@ public class Profile {
 
     private String profilePicture;
 
+    @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     public Profile(String firstName, String lastName, LocalDate dateOfBirth
@@ -47,8 +52,6 @@ public class Profile {
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.profilePicture = profilePicture;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public String getId() {

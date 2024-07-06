@@ -1,6 +1,8 @@
 package com.gigglegazette.article_service.model;
 
 import jakarta.validation.constraints.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -24,11 +26,17 @@ public class Article {
     @Size(min = 10, message = "Content must be at least 10 characters")
     private String content;
 
+    @NotBlank(message = "HTML content is required")
+    @Size(min = 10, message = "HTML content must be at least 10 characters")
+    private String htmlContent;
+
     @NotBlank(message = "Author ID is required")
     private String authorId;
 
+    @CreatedDate
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     @NotNull(message = "Tags cannot be null")
@@ -45,17 +53,15 @@ public class Article {
     // Constructor
 
     public Article(String title, String content, String authorId,
-                   List<String> tags, String status, int likes) {
+                   List<String> tags, String status, int likes, String htmlContent) {
         this.title = title;
         this.content = content;
         this.authorId = authorId;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
         this.tags = tags;
         this.status = status;
         this.likes = likes;
+        this.htmlContent = htmlContent;
     }
-
 
     // Getters and Setters
 
@@ -131,4 +137,11 @@ public class Article {
         this.likes = likes;
     }
 
+    public @NotBlank(message = "HTML content is required") @Size(min = 10, message = "HTML content must be at least 10 characters") String getHtmlContent() {
+        return htmlContent;
+    }
+
+    public void setHtmlContent(@NotBlank(message = "HTML content is required") @Size(min = 10, message = "HTML content must be at least 10 characters") String htmlContent) {
+        this.htmlContent = htmlContent;
+    }
 }

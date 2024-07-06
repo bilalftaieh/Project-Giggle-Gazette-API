@@ -3,12 +3,14 @@ package com.gigglegazette.user_service.controller;
 import com.gigglegazette.user_service.model.User;
 import com.gigglegazette.user_service.repository.UserRepository;
 import com.gigglegazette.user_service.util.CustomResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
@@ -73,17 +75,51 @@ public class UserController {
     }
 
     /**
+     * Fetch a specific user by their unique username.
+     *
+     * @param username The username of the user to be fetched.
+     * @return A response entity containing the user if found, or a 'not found' message.
+     */
+    @GetMapping("/username/{username}")
+    public ResponseEntity<CustomResponse<User>> getUserByUsername(@PathVariable String username) {
+        try {
+            Optional<User> user = userRepository.findByUsername(username);
+            return user.map(value -> ResponseEntity.ok(new CustomResponse<>("User retrieved successfully", value, true)))
+                    .orElseGet(() -> ResponseEntity.status(404).body(
+                            new CustomResponse<>("User not found", null, false)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    new CustomResponse<>("An error occurred while retrieving the user: " + e.getMessage(), null, false));
+        }
+    }
+
+
+    /**
      * Create a new user with the details provided in the request body.
      *
      * @param user The user details to be saved.
      * @return A response entity indicating that the user was created successfully.
      */
     @PostMapping
-    public ResponseEntity<CustomResponse<String>> createUser(@RequestBody User user) {
+    public ResponseEntity<?>
+    createUser(@Valid @RequestBody User user, BindingResult result) {
+        if (result.hasErrors()) {
+            // Handle validation errors
+            List<Map<String, String>> errorDetails = new ArrayList<>();
+            for (FieldError error : result.getFieldErrors()) {
+                Map<String, String> errorDetail = new HashMap<>();
+                errorDetail.put("field", error.getField());
+                errorDetail.put("message", error.getDefaultMessage());
+                errorDetails.add(errorDetail);
+            }
+            return ResponseEntity.status(400).body(
+                    new CustomResponse<>("Validation Failed", errorDetails, false)
+            );
+        }
         try {
-            userRepository.save(user);
+            User savedUser = userRepository.save(user);
             return ResponseEntity.status(201).body(
-                    new CustomResponse<>("User created successfully", null, true));
+                    new CustomResponse<>("User created successfully", savedUser, true));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(
                     new CustomResponse<>("An error occurred while creating the user: " + e.getMessage(), null, false));
@@ -94,12 +130,12 @@ public class UserController {
      * Update an existing user's attributes based on the request body.
      * Only fields included in the request body will be updated.
      *
-     * @param id The ID of the user to be updated.
+     * @param id   The ID of the user to be updated.
      * @param user The updated user details.
      * @return A response entity indicating whether the update was successful or the user was not found.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse<String>> updateUser(@PathVariable String id, @RequestBody User user) {
+    public ResponseEntity<CustomResponse<User>> updateUser(@PathVariable String id, @RequestBody User user) {
         try {
             Optional<User> existingUserOptional = userRepository.findById(id);
             if (existingUserOptional.isPresent()) {
@@ -110,10 +146,9 @@ public class UserController {
                 if (user.getPassword() != null) existingUser.setPassword(user.getPassword());
                 if (user.getRole() != null) existingUser.setRole(user.getRole());
                 if (user.getProfile() != null) existingUser.setProfile(user.getProfile());
-                if (user.getUpdatedAt() != null) existingUser.setUpdatedAt(user.getUpdatedAt());
 
-                userRepository.save(existingUser);
-                return ResponseEntity.ok(new CustomResponse<>("User updated successfully", null, true));
+                User savedUser = userRepository.save(existingUser);
+                return ResponseEntity.ok(new CustomResponse<>("User updated successfully", savedUser, true));
             } else {
                 return ResponseEntity.status(404).body(new CustomResponse<>("User not found", null, false));
             }

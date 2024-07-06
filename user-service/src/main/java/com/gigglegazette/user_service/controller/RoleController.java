@@ -3,12 +3,14 @@ package com.gigglegazette.user_service.controller;
 import com.gigglegazette.user_service.model.Role;
 import com.gigglegazette.user_service.repository.RoleRepository;
 import com.gigglegazette.user_service.util.CustomResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/roles")
@@ -61,36 +63,51 @@ public class RoleController {
      * @return A response entity indicating that the role was created successfully.
      */
     @PostMapping
-    public ResponseEntity<CustomResponse<String>> createRole(@RequestBody Role role) {
+    public ResponseEntity<?> createRole(@Valid @RequestBody Role role,
+                                        BindingResult result) {
+        if (result.hasErrors()) {
+            // Handle validation errors
+            List<Map<String, String>> errorDetails = new ArrayList<>();
+            for (FieldError error : result.getFieldErrors()) {
+                Map<String, String> errorDetail = new HashMap<>();
+                errorDetail.put("field", error.getField());
+                errorDetail.put("message", error.getDefaultMessage());
+                errorDetails.add(errorDetail);
+            }
+            return ResponseEntity.status(400).body(
+                    new CustomResponse<>("Validation Failed", errorDetails, false)
+            );
+        }
+
         try {
-            roleRepository.save(role);
+            Role savedRole = roleRepository.save(role);
             return ResponseEntity.status(201).body(
-                    new CustomResponse<>("Role created successfully", null, true));
+                    new CustomResponse<>("Role created successfully", savedRole, true));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(
                     new CustomResponse<>("An error occurred while creating the role: " + e.getMessage(), null, false));
         }
     }
 
+
     /**
      * Update an existing role's attributes based on the request body.
      * Only fields included in the request body will be updated.
      *
-     * @param id The ID of the role to be updated.
+     * @param id   The ID of the role to be updated.
      * @param role The updated role details.
      * @return A response entity indicating whether the update was successful or the role was not found.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse<String>> updateRole(@PathVariable String id, @RequestBody Role role) {
+    public ResponseEntity<CustomResponse<Role>> updateRole(@PathVariable String id, @RequestBody Role role) {
         try {
             Optional<Role> existingRoleOptional = roleRepository.findById(id);
             if (existingRoleOptional.isPresent()) {
                 Role existingRole = existingRoleOptional.get();
                 // Only update fields that are provided in the request body
                 if (role.getName() != null) existingRole.setName(role.getName());
-                if (role.getUpdatedAt() != null) existingRole.setUpdatedAt(role.getUpdatedAt());
-                roleRepository.save(existingRole);
-                return ResponseEntity.ok(new CustomResponse<>("Role updated successfully", null, true));
+                Role savedRole = roleRepository.save(existingRole);
+                return ResponseEntity.ok(new CustomResponse<>("Role updated successfully", savedRole, true));
             } else {
                 return ResponseEntity.status(404).body(new CustomResponse<>("Role not found", null, false));
             }

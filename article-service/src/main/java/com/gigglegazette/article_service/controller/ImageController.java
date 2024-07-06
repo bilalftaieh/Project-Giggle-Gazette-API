@@ -3,14 +3,16 @@ package com.gigglegazette.article_service.controller;
 import com.gigglegazette.article_service.model.Image;
 import com.gigglegazette.article_service.repository.ImageRepository;
 import com.gigglegazette.article_service.util.CustomResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/images")
@@ -26,10 +28,22 @@ public class ImageController {
      * @return A response entity with a success message if the image is created successfully.
      */
     @PostMapping
-    public ResponseEntity<CustomResponse<Image>> createImage(@RequestBody Image image) {
+    public ResponseEntity<?>
+    createImage(@Valid @RequestBody Image image, BindingResult result) {
+        if (result.hasErrors()) {
+            // Handle validation errors
+            List<Map<String, String>> errorDetails = new ArrayList<>();
+            for (FieldError error : result.getFieldErrors()) {
+                Map<String, String> errorDetail = new HashMap<>();
+                errorDetail.put("field", error.getField());
+                errorDetail.put("message", error.getDefaultMessage());
+                errorDetails.add(errorDetail);
+            }
+            return ResponseEntity.status(400).body(
+                    new CustomResponse<>("Validation Failed", errorDetails, false)
+            );
+        }
         try {
-            image.setUploadedAt(LocalDateTime.now());
-            image.setLastAccessedAt(LocalDateTime.now());
             Image savedImage = imageRepository.save(image);
             return new ResponseEntity<>(new CustomResponse<>("Image created successfully.", savedImage, true), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -92,7 +106,6 @@ public class ImageController {
                 if (imageDetails.getHeight() > 0) image.setHeight(imageDetails.getHeight());
                 if (imageDetails.getArticle() != null) image.setArticle(imageDetails.getArticle());
                 if (imageDetails.isPublic() != image.isPublic()) image.setPublic(imageDetails.isPublic());
-                image.setLastAccessedAt(LocalDateTime.now());
                 Image updatedImage = imageRepository.save(image);
                 return new ResponseEntity<>(new CustomResponse<>("Image updated successfully.", updatedImage, true), HttpStatus.OK);
             } else {

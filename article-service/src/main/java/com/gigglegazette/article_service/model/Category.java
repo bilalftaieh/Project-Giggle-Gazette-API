@@ -2,6 +2,8 @@ package com.gigglegazette.article_service.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -18,11 +20,14 @@ public class Category {
     @Size(min = 2, max = 100, message = "Category name must be between 2 and 100 characters")
     private String name;
 
+    @NotBlank(message = "Category description is required")
     @Size(max = 255, message = "Description can be up to 255 characters")
     private String description;
 
+    @CreatedDate
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     // Constructor
@@ -30,8 +35,6 @@ public class Category {
     public Category(String name, String description) {
         this.name = name;
         this.description = description;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     // Getters and Setters

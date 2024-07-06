@@ -3,14 +3,16 @@ package com.gigglegazette.article_service.controller;
 import com.gigglegazette.article_service.model.SubCategory;
 import com.gigglegazette.article_service.repository.SubCategoryRepository;
 import com.gigglegazette.article_service.util.CustomResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/subcategories")
@@ -26,10 +28,23 @@ public class SubCategoryController {
      * @return A response entity with a success message if the subcategory is created successfully.
      */
     @PostMapping
-    public ResponseEntity<CustomResponse<SubCategory>> createSubCategory(@RequestBody SubCategory subCategory) {
+    public ResponseEntity<?>
+    createSubCategory(@Valid @RequestBody SubCategory subCategory
+            , BindingResult result) {
+        if (result.hasErrors()) {
+            // Handle validation errors
+            List<Map<String, String>> errorDetails = new ArrayList<>();
+            for (FieldError error : result.getFieldErrors()) {
+                Map<String, String> errorDetail = new HashMap<>();
+                errorDetail.put("field", error.getField());
+                errorDetail.put("message", error.getDefaultMessage());
+                errorDetails.add(errorDetail);
+            }
+            return ResponseEntity.status(400).body(
+                    new CustomResponse<>("Validation Failed", errorDetails, false)
+            );
+        }
         try {
-            subCategory.setCreatedAt(LocalDateTime.now());
-            subCategory.setUpdatedAt(LocalDateTime.now());
             SubCategory savedSubCategory = subCategoryRepository.save(subCategory);
             return new ResponseEntity<>(new CustomResponse<>("SubCategory created successfully.", savedSubCategory, true), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -73,7 +88,7 @@ public class SubCategoryController {
      * Update an existing subcategory's attributes based on the request body.
      * Only the fields included in the request body will be updated.
      *
-     * @param id The ID of the subcategory to be updated.
+     * @param id                 The ID of the subcategory to be updated.
      * @param subCategoryDetails The updated subcategory details.
      * @return A response entity indicating whether the update was successful or the subcategory was not found.
      */
@@ -84,9 +99,10 @@ public class SubCategoryController {
             if (subCategoryOptional.isPresent()) {
                 SubCategory subCategory = subCategoryOptional.get();
                 if (subCategoryDetails.getName() != null) subCategory.setName(subCategoryDetails.getName());
-                if (subCategoryDetails.getDescription() != null) subCategory.setDescription(subCategoryDetails.getDescription());
-                if (subCategoryDetails.getParentCategory() != null) subCategory.setParentCategory(subCategoryDetails.getParentCategory());
-                if (subCategoryDetails.getUpdatedAt() != null) subCategory.setUpdatedAt(subCategoryDetails.getUpdatedAt());
+                if (subCategoryDetails.getDescription() != null)
+                    subCategory.setDescription(subCategoryDetails.getDescription());
+                if (subCategoryDetails.getParentCategory() != null)
+                    subCategory.setParentCategory(subCategoryDetails.getParentCategory());
                 SubCategory updatedSubCategory = subCategoryRepository.save(subCategory);
                 return new ResponseEntity<>(new CustomResponse<>("SubCategory updated successfully.", updatedSubCategory, true), HttpStatus.OK);
             } else {

@@ -1,18 +1,19 @@
 # Project Giggle Gazette API
 
-Welcome to Project Giggle Gazette API! This project is a personal newspaper web app built using Spring Boot (3.3.1), following a microservices architecture. The backend consists of several services that work together to handle user data, article management, and service discovery.
+Welcome to Project Giggle Gazette API! This project is a personal newspaper web app built using Spring Boot, following a microservices architecture. The backend consists of several services that work together to handle user data, article management, and service discovery.
 
 ---
 
 ## Project Structure
 
-Project Giggle Gazette is organized into five main services:
+Project Giggle Gazette is organized into six main services:
 
 1. **User Service**: Manages user data, roles, profiles, and permissions.
 2. **Article Service**: Manages articles, categories, comments, images, and subcategories.
-3. **Service Registry (Eureka Server)**: Registers and discovers services.
-4. **Config Server**: Manages configuration for all services.
-5. **API Gateway**: Handles routing and security for service endpoints.
+3. **Auth Service**: Handles user authentication and registration.
+4. **Service Registry (Eureka Server)**: Registers and discovers services.
+5. **Config Server**: Manages configuration for all services.
+6. **API Gateway**: Handles routing and security for service endpoints.
 
 ---
 
@@ -22,30 +23,30 @@ Project Giggle Gazette is organized into five main services:
 The User Service handles user-related operations and profile management. It exposes the following endpoints:
 
 - **User Endpoints**:
-    - `GET /users`: Retrieve all users.
-    - `GET /users/{id}`: Retrieve a user by ID.
-    - `GET /users/email/{email}`: Retrieve a user by Email.
-    - `POST /users`: Create a new user.
-    - `PUT /users/{id}`: Update a user by ID.
-    - `DELETE /users/{id}`: Delete a user by ID.
+  - `GET /users`: Retrieve all users.
+  - `GET /users/{id}`: Retrieve a user by ID.
+  - `GET /users/email/{email}`: Retrieve a user by Email.
+  - `POST /users`: Create a new user.
+  - `PUT /users/{id}`: Update a user by ID.
+  - `DELETE /users/{id}`: Delete a user by ID.
 - **Role Endpoints**:
-    - `GET /roles`: Retrieve all roles.
-    - `GET /roles/{id}`: Retrieve a role by ID.
-    - `POST /roles`: Create a new role.
-    - `PUT /roles/{id}`: Update a role by ID.
-    - `DELETE /roles/{id}`: Delete a role by ID.
+  - `GET /roles`: Retrieve all roles.
+  - `GET /roles/{id}`: Retrieve a role by ID.
+  - `POST /roles`: Create a new role.
+  - `PUT /roles/{id}`: Update a role by ID.
+  - `DELETE /roles/{id}`: Delete a role by ID.
 - **Profile Endpoints**:
-    - `GET /profiles`: Retrieve all profiles.
-    - `GET /profiles/{id}`: Retrieve a profile by ID.
-    - `POST /profiles`: Create a new profile.
-    - `PUT /profiles/{id}`: Update a profile by ID.
-    - `DELETE /profiles/{id}`: Delete a profile by ID.
+  - `GET /profiles`: Retrieve all profiles.
+  - `GET /profiles/{id}`: Retrieve a profile by ID.
+  - `POST /profiles`: Create a new profile.
+  - `PUT /profiles/{id}`: Update a profile by ID.
+  - `DELETE /profiles/{id}`: Delete a profile by ID.
 - **Permission Endpoints**:
-    - `GET /permissions`: Retrieve all permissions.
-    - `GET /permissions/{id}`: Retrieve a permission by ID.
-    - `POST /permissions`: Create a new permission.
-    - `PUT /permissions/{id}`: Update a permission by ID.
-    - `DELETE /permissions/{id}`: Delete a permission by ID.
+  - `GET /permissions`: Retrieve all permissions.
+  - `GET /permissions/{id}`: Retrieve a permission by ID.
+  - `POST /permissions`: Create a new permission.
+  - `PUT /permissions/{id}`: Update a permission by ID.
+  - `DELETE /permissions/{id}`: Delete a permission by ID.
 
 #### Models
 - **User**: Stores user details.
@@ -59,37 +60,37 @@ The User Service handles user-related operations and profile management. It expo
 The Article Service manages articles, categories, comments, images, and subcategories. It exposes the following endpoints:
 
 - **Article Endpoints**:
-    - `GET /articles`: Retrieve all articles.
-    - `GET /articles/{id}`: Retrieve an article by ID.
-    - `POST /articles`: Create a new article.
-    - `PUT /articles/{id}`: Update an article by ID.
-    - `DELETE /articles/{id}`: Delete an article by ID.
+  - `GET /articles`: Retrieve all articles.
+  - `GET /articles/{id}`: Retrieve an article by ID.
+  - `POST /articles`: Create a new article.
+  - `PUT /articles/{id}`: Update an article by ID.
+  - `DELETE /articles/{id}`: Delete an article by ID.
 - **Category Endpoints**:
-    - `GET /categories`: Retrieve all categories.
-    - `GET /categories/{id}`: Retrieve a category by ID.
-    - `POST /categories`: Create a new category.
-    - `PUT /categories/{id}`: Update a category by ID.
-    - `DELETE /categories/{id}`: Delete a category by ID.
+  - `GET /categories`: Retrieve all categories.
+  - `GET /categories/{id}`: Retrieve a category by ID.
+  - `POST /categories`: Create a new category.
+  - `PUT /categories/{id}`: Update a category by ID.
+  - `DELETE /categories/{id}`: Delete a category by ID.
 - **Comment Endpoints**:
-    - `GET /comments`: Retrieve all comments.
-    - `GET /comments/{id}`: Retrieve a comment by ID.
-    - `GET /comments/article/{articleId}`: Retrieve comments by article ID.
-    - `POST /comments`: Create a new comment.
-    - `PUT /comments/{id}`: Update a comment by ID.
-    - `DELETE /comments/{id}`: Delete a comment by ID.
+  - `GET /comments`: Retrieve all comments.
+  - `GET /comments/{id}`: Retrieve a comment by ID.
+  - `GET /comments/article/{articleId}`: Retrieve comments by article ID.
+  - `POST /comments`: Create a new comment.
+  - `PUT /comments/{id}`: Update a comment by ID.
+  - `DELETE /comments/{id}`: Delete a comment by ID.
 - **Image Endpoints**:
-    - `GET /images`: Retrieve all images.
-    - `GET /images/{id}`: Retrieve an image by ID.
-    - `GET /images/article/{articleId}`: Retrieve images by article ID.
-    - `POST /images`: Upload a new image.
-    - `PUT /images/{id}`: Update an image by ID.
-    - `DELETE /images/{id}`: Delete an image by ID.
+  - `GET /images`: Retrieve all images.
+  - `GET /images/{id}`: Retrieve an image by ID.
+  - `GET /images/article/{articleId}`: Retrieve images by article ID.
+  - `POST /images`: Upload a new image.
+  - `PUT /images/{id}`: Update an image by ID.
+  - `DELETE /images/{id}`: Delete an image by ID.
 - **SubCategory Endpoints**:
-    - `GET /subcategories`: Retrieve all subcategories.
-    - `GET /subcategories/{id}`: Retrieve a subcategory by ID.
-    - `POST /subcategories`: Create a new subcategory.
-    - `PUT /subcategories/{id}`: Update a subcategory by ID.
-    - `DELETE /subcategories/{id}`: Delete a subcategory by ID.
+  - `GET /subcategories`: Retrieve all subcategories.
+  - `GET /subcategories/{id}`: Retrieve a subcategory by ID.
+  - `POST /subcategories`: Create a new subcategory.
+  - `PUT /subcategories/{id}`: Update a subcategory by ID.
+  - `DELETE /subcategories/{id}`: Delete a subcategory by ID.
 
 #### Models
 - **Article**: Represents newspaper articles.
@@ -100,17 +101,26 @@ The Article Service manages articles, categories, comments, images, and subcateg
 
 ---
 
-### 3. Service Registry (Eureka Server)
+### 3. Auth Service
+The Auth Service handles user authentication and registration. It exposes the following endpoints:
+
+- **Auth Endpoints**:
+  - `POST /auth/signin`: User sign in.
+  - `POST /auth/signup`: User registration.
+
+---
+
+### 4. Service Registry (Eureka Server)
 The Eureka Server is responsible for registering and discovering services. All services register themselves with Eureka, allowing for easy service discovery and load balancing.
 
 ---
 
-### 4. Config Server
+### 5. Config Server
 The Config Server handles external configurations for all services. This ensures that configuration changes can be managed centrally and applied dynamically across the entire system.
 
 ---
 
-### 5. API Gateway
+### 6. API Gateway
 The API Gateway (Spring Cloud Gateway) routes requests to the appropriate services and handles security. It serves as the single entry point for all client requests.
 
 - **Server Port**: `8060`
@@ -118,7 +128,7 @@ The API Gateway (Spring Cloud Gateway) routes requests to the appropriate servic
 ---
 
 ## Security
-Project Giggle Gazette will use JWT tokens for authentication in future updates. Users will need to log in to receive a JWT token, which must be included in the `Authorization` header as `Bearer <token>` for subsequent requests to protected endpoints.
+Project Giggle Gazette uses JWT tokens for authentication. Users must log in to receive a JWT token, which must be included in the `Authorization` header as `Bearer <token>` for subsequent requests to protected endpoints. All endpoints, except for the authentication endpoints, are protected and require a valid JWT token.
 
 ---
 
@@ -167,7 +177,13 @@ Users can access all endpoints through the API Gateway using `localhost` and por
     ./mvnw spring-boot:run
     ```
 
-6. **Start the API Gateway**:
+6. **Start the Auth Service**:
+    ```bash
+    cd auth-service
+    ./mvnw spring-boot:run
+    ```
+
+7. **Start the API Gateway**:
     ```bash
     cd api-gateway
     ./mvnw spring-boot:run

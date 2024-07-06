@@ -3,13 +3,15 @@ package com.gigglegazette.user_service.controller;
 import com.gigglegazette.user_service.model.Profile;
 import com.gigglegazette.user_service.repository.ProfileRepository;
 import com.gigglegazette.user_service.util.CustomResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/profiles")
@@ -62,13 +64,25 @@ public class ProfileController {
      * @return A response entity indicating that the profile was created successfully.
      */
     @PostMapping
-    public ResponseEntity<CustomResponse<String>> createProfile(@RequestBody Profile profile) {
+    public ResponseEntity<?>
+    createProfile(@Valid @RequestBody Profile profile, BindingResult result) {
+        if (result.hasErrors()) {
+            // Handle validation errors
+            List<Map<String, String>> errorDetails = new ArrayList<>();
+            for (FieldError error : result.getFieldErrors()) {
+                Map<String, String> errorDetail = new HashMap<>();
+                errorDetail.put("field", error.getField());
+                errorDetail.put("message", error.getDefaultMessage());
+                errorDetails.add(errorDetail);
+            }
+            return ResponseEntity.status(400).body(
+                    new CustomResponse<>("Validation Failed", errorDetails, false)
+            );
+        }
         try {
-            profile.setCreatedAt(LocalDateTime.now());
-            profile.setUpdatedAt(LocalDateTime.now());
-            profileRepository.save(profile);
+            Profile savedProfile = profileRepository.save(profile);
             return ResponseEntity.status(201).body(
-                    new CustomResponse<>("Profile created successfully", null, true));
+                    new CustomResponse<>("Profile created successfully", savedProfile, true));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(
                     new CustomResponse<>("An error occurred while creating the profile: " + e.getMessage(), null, false));
@@ -79,12 +93,12 @@ public class ProfileController {
      * Update an existing profile's attributes based on the request body.
      * Only the fields included in the request body will be updated.
      *
-     * @param id The ID of the profile to be updated.
+     * @param id      The ID of the profile to be updated.
      * @param profile The updated profile details.
      * @return A response entity indicating whether the update was successful or the profile was not found.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse<String>> updateProfile(@PathVariable String id, @RequestBody Profile profile) {
+    public ResponseEntity<CustomResponse<Profile>> updateProfile(@PathVariable String id, @RequestBody Profile profile) {
         try {
             Optional<Profile> existingProfileOptional = profileRepository.findById(id);
             if (existingProfileOptional.isPresent()) {
@@ -98,11 +112,8 @@ public class ProfileController {
                 if (profile.getPhoneNumber() != null) existingProfile.setPhoneNumber(profile.getPhoneNumber());
                 if (profile.getProfilePicture() != null) existingProfile.setProfilePicture(profile.getProfilePicture());
 
-                // Update the timestamp for modification
-                existingProfile.setUpdatedAt(LocalDateTime.now());
-
-                profileRepository.save(existingProfile);
-                return ResponseEntity.ok(new CustomResponse<>("Profile updated successfully", null, true));
+                Profile savedProfile = profileRepository.save(existingProfile);
+                return ResponseEntity.ok(new CustomResponse<>("Profile updated successfully", savedProfile, true));
             } else {
                 return ResponseEntity.status(404).body(new CustomResponse<>("Profile not found", null, false));
             }

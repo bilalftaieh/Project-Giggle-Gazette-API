@@ -3,12 +3,17 @@ package com.gigglegazette.article_service.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "subcategories")
 public class SubCategory {
@@ -20,6 +25,7 @@ public class SubCategory {
     @Size(min = 2, max = 100, message = "SubCategory name must be between 2 and 100 characters")
     private String name;
 
+    @NotBlank(message = "SubCategory Description is required")
     @Size(max = 255, message = "Description can be up to 255 characters")
     private String description;
 
@@ -27,18 +33,24 @@ public class SubCategory {
     @DocumentReference(collection = "categories")
     private Category parentCategory;
 
+    @NotNull(message = "Articles list is needed")
+    @DocumentReference(collection = "articles")
+    private List<Article> articles;
+
+    @CreatedDate
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     // Constructor
 
-    public SubCategory(String name, String description, Category parentCategory) {
+    public SubCategory(String name, String description,
+                       Category parentCategory, List<Article> articles) {
         this.name = name;
         this.description = description;
         this.parentCategory = parentCategory;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.articles = articles;
     }
 
     // Getters and Setters
@@ -89,6 +101,14 @@ public class SubCategory {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<Article> getArticles() {
+        return articles;
+    }
+
+    public void setArticles(List<Article> articles) {
+        this.articles = articles;
     }
 }
 

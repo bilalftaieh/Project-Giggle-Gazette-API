@@ -1,11 +1,14 @@
 package com.gigglegazette.user_service.model;
 
 import jakarta.validation.constraints.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public class Permission {
@@ -19,14 +22,15 @@ public class Permission {
     @DocumentReference(collection = "roles")
     private Set<Role> allowedRoles;
 
+    @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     public Permission(String name, Set<Role> allowedRoles) {
         this.name = name;
         this.allowedRoles = allowedRoles;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public String getId() {
